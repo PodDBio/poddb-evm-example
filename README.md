@@ -1,4 +1,4 @@
-# PodDB-Example
+# PodDB-EVM-Example
 
 This is an example about how to use PodDB in a contract.
 
