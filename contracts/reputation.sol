@@ -40,7 +40,11 @@ contract Reputation is Ownable {
     }
 
     function setReputation(uint16 reputation) public returns (bytes20) {
-        IPodDB.TagObject memory object = IPodDB.TagObject(msg.sender, 0);
+        IPodDB.TagObject memory object = IPodDB.TagObject(
+            IPodDB.ObjectType.Address,
+            msg.sender,
+            0
+        );
         WriteBuffer.buffer memory wBuf;
         bytes memory data = wBuf.init(2).writeUint16(reputation).getBytes();
         uint32 expiredTime = 0; //never expired;
@@ -56,7 +60,11 @@ contract Reputation is Ownable {
     }
 
     function getReputation(address user) public view returns (uint16 score) {
-        IPodDB.TagObject memory object = IPodDB.TagObject(user, 0);
+        IPodDB.TagObject memory object = IPodDB.TagObject(
+            IPodDB.ObjectType.Address,
+            user,
+            0
+        );
         bytes memory data = _PodDB.getTagData(ReputationTagClassId, object);
         if (data.length == 0) {
             return 0;
@@ -67,7 +75,11 @@ contract Reputation is Ownable {
     }
 
     function deleteReputation(bytes20 tagId) public returns (bool) {
-        IPodDB.TagObject memory object = IPodDB.TagObject(msg.sender, 0);
+        IPodDB.TagObject memory object = IPodDB.TagObject(
+            IPodDB.ObjectType.Address,
+            msg.sender,
+            0
+        );
         return _PodDB.deleteTag(tagId, ReputationTagClassId, object);
     }
 
