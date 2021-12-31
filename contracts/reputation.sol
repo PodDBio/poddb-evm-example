@@ -2,7 +2,9 @@
 pragma solidity ^0.8.4;
 
 import "./librarys/OpenZeppelin/Ownable.sol";
-import "./librarys/PodDB/IPodDB.sol";
+import "./librarys/PodDB/IPodCore.sol";
+import "./librarys/PodDB/ITag.sol";
+import "./librarys/PodDB/ITagClass.sol";
 import "./librarys/PodDB/Helper.sol";
 import "./librarys/PodDB/WriteBuffer.sol";
 
@@ -11,20 +13,22 @@ contract Reputation is Ownable {
     using WriteBuffer for *;
     using ReadBuffer for *;
 
-    IPodDB private _PodDB;
-    bytes20 public ReputationTagClassId;
+    ITag private _Tag;
+    ITagClass private _TagClass;
+    bytes18 public ReputationTagClassId;
 
-    constructor(address podBDAddress) Ownable() {
-        _PodDB = IPodDB(podBDAddress);
+    constructor(address tagAddress, address tagClassAddress) Ownable() {
+        _Tag = ITag(tagAddress);
+        _TagClass = ITagClass(tagClassAddress);
 
         //create reputation tagClass;
         Helper.TagClassFieldBuilder memory builder;
-        builder.init().put("Score", IPodDB.TagFieldType.Uint16, false);
+        builder.init().put("Score", IPodCore.TagFieldType.Uint16, false);
         string memory tagClassName = "reputation";
         string memory tagClassDesc = "Reputation for user";
         uint8 tagClassFlags = 0;
-        IPodDB.TagAgent memory agent;
-        ReputationTagClassId = _PodDB.newTagClass(
+        IPodCore.TagAgent memory agent;
+        ReputationTagClassId = _TagClass.newValueTagClass(
             tagClassName,
             builder.getFieldNames(),
             builder.getFieldTypes(),
@@ -34,38 +38,35 @@ contract Reputation is Ownable {
         );
     }
 
-    // PodDB may upgrade in future, so it is very important to provide the ability to modify the PodDB contract address
-    function setPodDB(address podDBAddress) public onlyOwner {
-        _PodDB = IPodDB(podDBAddress);
+    // PodDB may upgrade in future, so it is very important to provide the ability to modify the
+    // Tag contract address and TagClass contract address.
+    function setPodDB(address tagAddress, address tagClassAddress)
+        public
+        onlyOwner
+    {
+        _Tag = ITag(tagAddress);
+        _TagClass = ITagClass(tagClassAddress);
     }
 
-    function setReputation(uint16 reputation) public returns (bytes20) {
-        IPodDB.TagObject memory object = IPodDB.TagObject(
-            IPodDB.ObjectType.Address,
-            msg.sender,
+    function setReputation(uint16 reputation) public {
+        IPodCore.TagObject memory object = IPodCore.TagObject(
+            IPodCore.ObjectType.Address,
+            bytes20(msg.sender),
             0
         );
         WriteBuffer.buffer memory wBuf;
         bytes memory data = wBuf.init(2).writeUint16(reputation).getBytes();
         uint32 expiredTime = 0; //never expired;
-        uint8 tagFlag = 0;
-        bytes20 tagId = _PodDB.setTag(
-            ReputationTagClassId,
-            object,
-            data,
-            expiredTime,
-            tagFlag
-        );
-        return tagId;
+        _Tag.setTag(ReputationTagClassId, object, data, expiredTime);
     }
 
     function getReputation(address user) public view returns (uint16 score) {
-        IPodDB.TagObject memory object = IPodDB.TagObject(
-            IPodDB.ObjectType.Address,
-            user,
+        IPodCore.TagObject memory object = IPodCore.TagObject(
+            IPodCore.ObjectType.Address,
+            bytes20(user),
             0
         );
-        bytes memory data = _PodDB.getTagData(ReputationTagClassId, object);
+        bytes memory data = _Tag.getTagData(ReputationTagClassId, object);
         if (data.length == 0) {
             return 0;
         }
@@ -74,25 +75,24 @@ contract Reputation is Ownable {
         return score;
     }
 
-    function deleteReputation(bytes20 tagId) public returns (bool) {
-        IPodDB.TagObject memory object = IPodDB.TagObject(
-            IPodDB.ObjectType.Address,
-            msg.sender,
+    function deleteReputation() public {
+        IPodCore.TagObject memory object = IPodCore.TagObject(
+            IPodCore.ObjectType.Address,
+            bytes20(msg.sender),
             0
         );
-        return _PodDB.deleteTag(tagId, ReputationTagClassId, object);
+        _Tag.deleteTag(ReputationTagClassId, object);
     }
 
     function deprecatedReputationTagClass() public onlyOwner {
-        IPodDB.TagClass memory reputationTagClass = _PodDB.getTagClass(
+        IPodCore.TagClass memory reputationTagClass = _TagClass.getTagClass(
             ReputationTagClassId
         );
         reputationTagClass.Flags |= 128;
-        _PodDB.updateTagClass(
+        _TagClass.updateValueTagClass(
             reputationTagClass.ClassId,
-            reputationTagClass.Owner,
-            reputationTagClass.Agent,
-            reputationTagClass.Flags
+            reputationTagClass.Flags,
+            reputationTagClass.Agent
         );
     }
 }

@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "./WriteBuffer.sol";
 import "./ReadBuffer.sol";
-import "./IPodDB.sol";
+import "./IPodCore.sol";
 
 library Helper {
     using WriteBuffer for *;
@@ -27,12 +27,12 @@ library Helper {
     function put(
         TagClassFieldBuilder memory builder,
         string memory fieldName,
-        IPodDB.TagFieldType fieldType,
+        IPodCore.TagFieldType fieldType,
         bool isArray
     ) internal pure returns (TagClassFieldBuilder memory) {
         builder._nBuf.writeString(fieldName);
         if (isArray) {
-            builder._tBuf.writeUint8(uint8(IPodDB.TagFieldType.Array));
+            builder._tBuf.writeUint8(uint8(IPodCore.TagFieldType.Array));
         }
         builder._tBuf.writeUint8(uint8(fieldType));
         return builder;

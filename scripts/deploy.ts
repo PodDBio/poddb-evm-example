@@ -16,9 +16,10 @@ async function main() {
   // We get the contract to deploy
   const reputationContract = await hre.ethers.getContractFactory("Reputation");
 
-  //Please replace this with the correct PodDB contract addres
-    const podDBAddress = "0xc5a5C42992dECbae36851359345FE25997F5C42d";
-  const reputation = await reputationContract.deploy(podDBAddress);
+  //Please replace this with the correct tag contract address and tagClass contract address
+  const tagAddress = "0x2279B7A0a67DB372996a5FaB50D91eAA73d2eBe6";
+  const tagClassAddress = "0xa513E6E4b8f2a923D98304ec87F64353C4D5C853";
+  const reputation = await reputationContract.deploy(tagAddress,tagClassAddress);
 
   await reputation.deployed();
 
