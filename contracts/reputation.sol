@@ -48,10 +48,10 @@ contract Reputation is Ownable {
         _TagClass = ITagClass(tagClassAddress);
     }
 
-    function setReputation(uint16 reputation) public {
+    function setReputation(uint16 reputation, address user) public onlyOwner {
         IPodCore.TagObject memory object = IPodCore.TagObject(
             IPodCore.ObjectType.Address,
-            bytes20(msg.sender),
+            bytes20(user),
             0
         );
         WriteBuffer.buffer memory wBuf;
@@ -75,10 +75,10 @@ contract Reputation is Ownable {
         return score;
     }
 
-    function deleteReputation() public {
+    function deleteReputation(address user) public onlyOwner {
         IPodCore.TagObject memory object = IPodCore.TagObject(
             IPodCore.ObjectType.Address,
-            bytes20(msg.sender),
+            bytes20(user),
             0
         );
         _Tag.deleteTag(ReputationTagClassId, object);
