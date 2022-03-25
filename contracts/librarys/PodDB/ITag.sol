@@ -6,20 +6,32 @@ import "./IPodCore.sol";
 interface ITag {
     event SetTag(
         bytes20 indexed id,
-        IPodCore.TagObject object,
         bytes18 indexed tagClassId,
+        IPodCore.TagObject object,
         bytes data,
         address issuer,
         uint32 expiredAt
     );
 
-    event DeleteTag(bytes20 indexed id);
+    event DeleteTag(
+        bytes20 indexed id,
+        bytes18 indexed tagClassId,
+        IPodCore.TagObject object
+    );
 
     function setTag(
         bytes18 tagClassId,
         IPodCore.TagObject calldata object,
         bytes calldata data,
         uint32 expiredTime //Expiration time of tag in seconds, 0 means never expires
+    ) external;
+
+    function setTagWithSig(
+        bytes18 tagClassId,
+        IPodCore.TagObject calldata object,
+        bytes calldata data,
+        uint32 expiredTime, //Expiration time of tag in seconds, 0 means never expires
+        bytes calldata signature //Signature of owner or agent
     ) external;
 
     struct SetTagParams {
@@ -38,6 +50,12 @@ interface ITag {
 
     function deleteTag(bytes18 classId, IPodCore.TagObject calldata object)
         external;
+
+    function deleteTagWithSig(
+        bytes18 tagClassId,
+        IPodCore.TagObject calldata object,
+        bytes calldata signature //Signature of owner or agent
+    ) external;
 
     function batchDeleteTags(DeleteTagParams[] calldata params) external;
 

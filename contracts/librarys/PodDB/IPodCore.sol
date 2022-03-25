@@ -46,7 +46,7 @@ interface IPodCore {
         address Owner; // EOA address or CA address
         bytes FieldTypes; //field types
         //TagClass Flags:
-        //0x60:deprecated flag, if a TagClass is marked as deprecated, you cannot set Tag under this TagClass
+        //0x80:deprecated flag, if a TagClass is marked as deprecated, you cannot set Tag under this TagClass
         uint8 Flags;
         TagAgent Agent;
         address LogicContract; //Contract address of logic tagClass
@@ -58,6 +58,7 @@ interface IPodCore {
         string TagName;
         bytes FieldNames; //name of fields
         string Desc;
+        string Url; //Url of tagClass
     }
 
     enum ObjectType {

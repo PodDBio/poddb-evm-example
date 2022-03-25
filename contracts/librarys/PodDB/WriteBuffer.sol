@@ -62,12 +62,12 @@ library WriteBuffer {
     }
 
     function resize(buffer memory buf, uint256 capacity) private pure {
-        bytes memory oldbuf = buf.buf;
+        bytes memory oldBuf = buf.buf;
         init(buf, capacity);
-        if (oldbuf.length == 0) {
+        if (oldBuf.length == 0) {
             return;
         }
-        writeFixedBytes(buf, oldbuf);
+        writeFixedBytes(buf, oldBuf);
     }
 
     /**

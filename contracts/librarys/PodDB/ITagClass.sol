@@ -11,6 +11,7 @@ interface ITagClass {
         bytes fieldNames,
         bytes fieldTypes,
         string desc,
+        string url,
         uint8 flags,
         IPodCore.TagAgent agent,
         address logicContract
@@ -28,25 +29,40 @@ interface ITagClass {
         address logicContract
     );
 
-    event UpdateTagClassInfo(bytes18 indexed classId, string name, string desc);
+    event UpdateTagClassInfo(
+        bytes18 indexed classId,
+        string name,
+        string desc,
+        string url
+    );
 
-    function newValueTagClass(
-        string calldata tagName,
-        bytes calldata fieldNames,
-        bytes calldata fieldTypes,
-        string calldata desc,
-        uint8 flags,
-        IPodCore.TagAgent calldata agent
-    ) external returns (bytes18);
+    struct NewValueTagClassParams {
+        string TagName;
+        bytes FieldNames;
+        bytes FieldTypes;
+        string Desc;
+        string Url;
+        uint8 Flags;
+        IPodCore.TagAgent Agent;
+    }
 
-    function newLogicTagClass(
-        string calldata tagName,
-        bytes calldata fieldNames,
-        bytes calldata fieldTypes,
-        string calldata desc,
-        uint8 flags,
-        address logicContract
-    ) external returns (bytes18 classId);
+    function newValueTagClass(NewValueTagClassParams calldata params)
+        external
+        returns (bytes18);
+
+    struct NewLogicTagClassParams {
+        string TagName;
+        bytes FieldNames;
+        bytes FieldTypes;
+        string Desc;
+        string Url;
+        uint8 Flags;
+        address LogicContract;
+    }
+
+    function newLogicTagClass(NewLogicTagClassParams calldata params)
+        external
+        returns (bytes18 classId);
 
     function updateValueTagClass(
         bytes18 classId,
@@ -63,7 +79,8 @@ interface ITagClass {
     function updateTagClassInfo(
         bytes18 classId,
         string calldata tagName,
-        string calldata desc
+        string calldata desc,
+        string calldata url
     ) external;
 
     function transferTagClassOwner(bytes18 classId, address newOwner) external;
